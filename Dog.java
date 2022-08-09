@@ -1,7 +1,15 @@
 class Dog {
-	int size;
-	String breed;
-	String name;
+	private int size;
+	private String breed;
+	private String name;
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int newSize) {
+		size = newSize;
+	}
 
 	void bark(int numberOfBarks) {
 		while (numberOfBarks > 0) {
@@ -21,13 +29,17 @@ class Dog {
 class DogTest {
 	public static void main (String[] args) {
 		Dog dogOne = new Dog();
-		dogOne.size = 70;
+		dogOne.setSize(70);
 
 		Dog dogTwo = new Dog();
-		dogTwo.size = 8;
+		dogTwo.setSize(8);
 
 		Dog dogThree = new Dog();
-		dogThree.size = 35;
+		dogThree.setSize(35);
+
+		System.out.println("Dog 1: " + dogOne.getSize());
+		System.out.println("Dog 2: " + dogTwo.getSize());
+		System.out.println("Dog 3: " + dogThree.getSize());
 
 		dogOne.bark(1);
 		dogTwo.bark(2);
