@@ -122,13 +122,16 @@ class Startup {
 		return hitCount;
 	}
 
-	public void checkGuess(Cell guess) {
-		for (int i = 0; i < location.length; i++) {
-			if (guess.equals(location[i])) {
+	public boolean checkGuess(Cell guess) {
+		boolean result = false;
+		for (Cell cell:location) {
+			if (guess.getRow().equals(cell.getRow()) && guess.getCol().equals(cell.getCol())) {
 				hitCount++;
-				location[i] = null;
+				cell.setCoordinates(null, null);
+				result = true;
 			}
 		}
+		return result;
 	}
 
 }
@@ -151,5 +154,21 @@ class StartupTest {
 		for (int j = 0; j < location.length; j++) {
 			System.out.println(location[j].getRow() + " " + location[j].getCol());
 		}
+
+		Cell guessHit = new Cell();
+		guessHit.setCoordinates("A", "0");
+
+		Cell guessMiss = new Cell();
+		guessMiss.setCoordinates("B", "1");
+
+		boolean shouldHit = startup.checkGuess(guessHit);
+		System.out.println("This should hit (and say true): " + shouldHit);
+
+		boolean shouldMiss = startup.checkGuess(guessMiss);
+		System.out.println("This should miss (and say false): " + shouldMiss);
+
+		System.out.println("Hits should now be 1: " + startup.getHitCount());
+		System.out.println("And the hit cell should now have null coordinates: " + startup.getLocation()[0].getRow() + " " + startup.getLocation()[0].getCol());
+
 	}
 }
