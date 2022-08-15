@@ -95,8 +95,8 @@ class CellTest {
 
 class Startup {
 	private String name;
-	private Cell[] location;
-	private int hitCount;
+	private String[] location;
+	private int numOfHits;
 
 	public void setName(String newName) {
 		name = newName;
@@ -106,69 +106,102 @@ class Startup {
 		return name;
 	}
 
-	public void setLocation(Cell[] newLocation) {
+	public void setLocation(String[] newLocation) {
 		location = newLocation;
 	}
 
-	public Cell[] getLocation() {
+	public String[] getLocation() {
 		return location;
 	}
 
-	public void incrementHits() {
-		hitCount++;
+	public int getNumOfHits() {
+		return numOfHits;
 	}
 
-	public int getHitCount() {
-		return hitCount;
-	}
+	public String checkGuess(String guess) {
+		String result = "Miss";
 
-	public boolean checkGuess(Cell guess) {
-		boolean result = false;
-		for (Cell cell:location) {
-			if (guess.getRow().equals(cell.getRow()) && guess.getCol().equals(cell.getCol())) {
-				hitCount++;
-				cell.setCoordinates(null, null);
-				result = true;
+		if (!guess.equals("")) {
+			for (int i = 0; i < location.length; i++) {
+				if (location[i].equals(guess)) {
+					location[i] = "";
+					numOfHits++;
+					result = "Hit";
+				}
 			}
 		}
+		
 		return result;
+	}
+
+	public boolean isSunk() {
+		return numOfHits >= location.length;
 	}
 
 }
 
-class StartupTest {
-	public static void main (String[] args) {
+class StartupTest extends Test {
+	public static void main(String[] args) {
 		Startup startup = new Startup();
-		startup.setName("teststart");
+		startup.setName("testup");
 
-		Cell[] location = new Cell[3];
-		for (int i = 0; i < location.length; i++) {
-			location[i] = new Cell();
+		String[] locationCells = {"A0", "A1", "A2"};
+		startup.setLocation(locationCells);
+
+		String guessHit1 = "A1";
+		String guessHit2 = "A0";
+		String guessHit3 = "A2";
+
+		String guessWrong = "B2";
+		String guessDupe = guessHit1;
+		String guessEmpty = "";
+
+		String hit = "Hit";
+		String miss = "Miss";
+
+		String resultHit = startup.checkGuess(guessHit1);
+		printTest("it should return a hit", resultHit.equals(hit));
+
+		String resultMiss = startup.checkGuess(guessWrong);
+		printTest("it should return a miss", resultMiss.equals(miss));
+
+		printTest("it should reflect one hit on the startup", startup.getNumOfHits() == 1);
+		printTest("it should indicate that the startup is not sunk", startup.isSunk() == false);
+
+		String hit2 = startup.checkGuess(guessHit2);
+		printTest("it should return a hit", hit2.equals(hit));
+
+		String dupeHit = startup.checkGuess(guessDupe);
+		printTest("it should return a miss if a previously hit cell is guessed", dupeHit.equals(miss));
+
+		String emptyMiss = startup.checkGuess(guessEmpty);
+		printTest("it should return a miss when an empty string is guessed", emptyMiss.equals(miss));
+
+		printTest("it should still show the startup as not yet sunk", startup.isSunk() == false);
+
+		String hit3 = startup.checkGuess(guessHit3);
+		printTest("it should return a hit", hit3.equals(hit));
+
+		printTest("it should show the number of hits as 3", startup.getNumOfHits() == 3);
+		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk() == true);
+	}
+}
+
+class Test {
+	public static void main(String[] args) {
+		boolean expectation = false;
+		String description = "it is not a test";
+		printTest(description, expectation);
+	}
+
+	private static String getPassOrFail(boolean expectation) {
+		if (expectation == true) {
+			return "PASS";
 		}
-		location[0].setCoordinates("A", "0");
-		location[1].setCoordinates("A", "1");
-		location[2].setCoordinates("A", "2");
+		return "FAIL";
+	}
 
-		startup.setLocation(location);
-		System.out.println("Here is the location of this startup:");
-		for (int j = 0; j < location.length; j++) {
-			System.out.println(location[j].getRow() + " " + location[j].getCol());
-		}
-
-		Cell guessHit = new Cell();
-		guessHit.setCoordinates("A", "0");
-
-		Cell guessMiss = new Cell();
-		guessMiss.setCoordinates("B", "1");
-
-		boolean shouldHit = startup.checkGuess(guessHit);
-		System.out.println("This should hit (and say true): " + shouldHit);
-
-		boolean shouldMiss = startup.checkGuess(guessMiss);
-		System.out.println("This should miss (and say false): " + shouldMiss);
-
-		System.out.println("Hits should now be 1: " + startup.getHitCount());
-		System.out.println("And the hit cell should now have null coordinates: " + startup.getLocation()[0].getRow() + " " + startup.getLocation()[0].getCol());
-
+	protected static void printTest(String description, boolean expectation) {
+		System.out.println(description + ": " + getPassOrFail(expectation));
 	}
 }
