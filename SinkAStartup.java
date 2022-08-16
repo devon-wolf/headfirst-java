@@ -1,15 +1,45 @@
-class Game {
-
+import java.util.Scanner;
+class GameHelper {
+	public String getUserInput(String prompt) {
+		System.out.print(prompt + ": ");
+		Scanner scanner = new Scanner(System.in);
+		return scanner.next();
+	}
 }
 
-class GameTest {
+class Game {
+	private static int guessCount = 0;
 
+	public static void main(String[] args) {
+		Startup startup = new Startup();
+		startup.setName("blorbocorp");
+		startup.assignRandomLocation();
+
+// this is going to run infinitely for now, don't run it man
+		while (!startup.isSunk()) {
+			GameHelper helper = new GameHelper();
+			String guess = helper.getUserInput("Enter a cell");
+			guessCount++;
+			startup.checkGuess(guess);
+		}
+
+		printSunkMessage(startup);
+		printFinalGuessCount();
+	}
+
+	static void printSunkMessage(Startup startup) {
+		System.out.println("You sunk " + startup.getName() + "!");
+	}
+
+	static void printFinalGuessCount() {
+		System.out.println("The game took you " + guessCount + " guesses.");
+	}
 }
 
 class Startup {
 	private String name;
 	private String[] location;
-	private int numOfHits;
+	private int numOfHits = 0;
 
 	public void setName(String newName) {
 		name = newName;
@@ -21,6 +51,12 @@ class Startup {
 
 	public void setLocation(String[] newLocation) {
 		location = newLocation;
+	}
+
+	public void assignRandomLocation() {
+		// not actually random right now
+		String[] randomLocation = { "A1", "A2", "A3" };
+		location = randomLocation;
 	}
 
 	public String[] getLocation() {
