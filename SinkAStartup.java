@@ -13,7 +13,10 @@ class Game {
 	public static void main(String[] args) {
 		Startup startup = new Startup();
 		startup.assignRandomName();
-		startup.assignRandomLocation();
+
+		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
+		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
+		startup.assignRandomLocation(rows, cols);
 
 		printLocation(startup);
 
@@ -55,7 +58,7 @@ class Game {
 
 class Startup {
 	private String name;
-	private String[] location;
+	private String[] location = new String[3];
 	private int numOfHits = 0;
 
 	public void setName(String newName) {
@@ -75,33 +78,34 @@ class Startup {
 		location = newLocation;
 	}
 
-	public void assignRandomLocation() {
-		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
-		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
+	public void assignRandomLocation(String[] rows, String[] cols) {
+		boolean baseIsRow = Random.flipCoin();
 
-		int coinFlip = (int) (Math.random() * 2);
-		int randomAxis = (int) (Math.random() * 7);
-		int randomSpanStart = (int) (Math.random() * 7);
+		if (baseIsRow == true) {
+			int randomBase = (int) (Math.random() * rows.length);
+			int randomSpanStart = (int) (Math.random() * cols.length);
+			String startingRow = rows[randomBase];
 
-		if (coinFlip == 1) {
-			String startingRow = rows[randomAxis];
-			if (randomSpanStart <= 4) {
-				String[] newLocation = { startingRow + cols[randomSpanStart], startingRow + cols[(randomSpanStart + 1)], startingRow + cols[(randomSpanStart + 2)] };
-				location = newLocation;
-			} else {
-				String[] newLocation = { startingRow + cols[randomSpanStart], startingRow + cols[(randomSpanStart - 1)], startingRow + cols[(randomSpanStart - 2)] };
-				location = newLocation;
-			}
+			setThreeLocationCells(rows[randomBase], cols, randomSpanStart, baseIsRow);
 		} else {
-			String startingCol = cols[randomAxis];
-			if (randomSpanStart <= 4) {
-				String[] newLocation = { rows[randomSpanStart] + startingCol, rows[(randomSpanStart + 1)] + startingCol, rows[(randomSpanStart + 2)] + startingCol };
-				location = newLocation;
-			} else {
-				String[] newLocation = { rows[randomSpanStart] + startingCol, rows[(randomSpanStart - 1)] + startingCol, rows[(randomSpanStart - 2)] + startingCol };
-				location = newLocation;
-			}
+			int randomBase = (int) (Math.random() * cols.length);
+			int randomSpanStart = (int) (Math.random() * rows.length);
+			String startingCol = cols[randomBase];
+
+			setThreeLocationCells(cols[randomBase], rows, randomSpanStart, baseIsRow);
 		}
+	}
+
+	private void setThreeLocationCells(String base, String[] span, int spanStart, boolean baseIsRow) {
+		String[] newLocation = new String[3];
+		int spanIdx = spanStart;
+
+		for (int i = 0; i < newLocation.length; i++) {
+			newLocation[i] = baseIsRow ? (base + span[spanIdx]) : (span[spanIdx] + base);
+			spanIdx = (spanStart <= 4) ? spanIdx + 1 : spanIdx - 1;
+		}
+
+		location = newLocation;
 	}
 
 	public String[] getLocation() {
@@ -188,7 +192,10 @@ class StartupTest extends Test {
 
 		Startup randomStartup = new Startup();
 		randomStartup.assignRandomName();
-		randomStartup.assignRandomLocation();
+
+		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
+		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
+		randomStartup.assignRandomLocation(rows, cols);
 
 		printTest("it should have a name", randomStartup.getName() != null);
 		System.out.println("\t(name: " + randomStartup.getName() + ")");
@@ -202,6 +209,17 @@ class StartupTest extends Test {
 		System.out.println(")");
 
 		System.out.println("=====");
+	}
+}
+
+class Random {
+	public static boolean flipCoin() {
+		int coinFlip = (int) (Math.random() * 2);
+		if (coinFlip == 1) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
