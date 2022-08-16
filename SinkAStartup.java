@@ -186,6 +186,21 @@ class StartupTest extends Test {
 		printTest("it should show the number of hits as 3", startup.getNumOfHits() == 3);
 		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk() == true);
 
+		Startup randomStartup = new Startup();
+		randomStartup.assignRandomName();
+		randomStartup.assignRandomLocation();
+
+		printTest("it should have a name", randomStartup.getName() != null);
+		System.out.println("\t(name: " + randomStartup.getName() + ")");
+
+		
+		printTest("it should have a location", randomStartup.getLocation() != null);
+		System.out.print("\t(location: ");
+		for (String cell:randomStartup.getLocation()) {
+			System.out.print(cell + " ");
+		}
+		System.out.println(")");
+
 		System.out.println("=====");
 	}
 }
