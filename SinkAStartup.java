@@ -12,19 +12,36 @@ class Game {
 
 	public static void main(String[] args) {
 		Startup startup = new Startup();
-		startup.setName("blorbocorp");
+		startup.assignRandomName();
 		startup.assignRandomLocation();
 
-// this is going to run infinitely for now, don't run it man
+		printLocation(startup);
+
 		while (!startup.isSunk()) {
 			GameHelper helper = new GameHelper();
+
+			// worth noting: hitting return on empty input makes a newline, not an empty string, and it keeps waiting for input
 			String guess = helper.getUserInput("Enter a cell");
 			guessCount++;
-			startup.checkGuess(guess);
+
+			String result = startup.checkGuess(guess);
+			printResult(result);
 		}
 
 		printSunkMessage(startup);
 		printFinalGuessCount();
+	}
+
+	static void printLocation(Startup startup) {
+		System.out.println("The test location of the startup is: ");
+		for (String cell:startup.getLocation()) {
+			System.out.print(cell + " ");
+		}
+		System.out.println();
+	}
+
+	static void printResult(String result) {
+		System.out.println(result);
 	}
 
 	static void printSunkMessage(Startup startup) {
@@ -49,14 +66,42 @@ class Startup {
 		return name;
 	}
 
+	public void assignRandomName() {
+		String[] names = {"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal"};
+		name = names[(int) (Math.random() * names.length)];
+	}
+
 	public void setLocation(String[] newLocation) {
 		location = newLocation;
 	}
 
 	public void assignRandomLocation() {
-		// not actually random right now
-		String[] randomLocation = { "A1", "A2", "A3" };
-		location = randomLocation;
+		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
+		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
+
+		int coinFlip = (int) (Math.random() * 2);
+		int randomAxis = (int) (Math.random() * 7);
+		int randomSpanStart = (int) (Math.random() * 7);
+
+		if (coinFlip == 1) {
+			String startingRow = rows[randomAxis];
+			if (randomSpanStart <= 4) {
+				String[] newLocation = { startingRow + cols[randomSpanStart], startingRow + cols[(randomSpanStart + 1)], startingRow + cols[(randomSpanStart + 2)] };
+				location = newLocation;
+			} else {
+				String[] newLocation = { startingRow + cols[randomSpanStart], startingRow + cols[(randomSpanStart - 1)], startingRow + cols[(randomSpanStart - 2)] };
+				location = newLocation;
+			}
+		} else {
+			String startingCol = cols[randomAxis];
+			if (randomSpanStart <= 4) {
+				String[] newLocation = { rows[randomSpanStart] + startingCol, rows[(randomSpanStart + 1)] + startingCol, rows[(randomSpanStart + 2)] + startingCol };
+				location = newLocation;
+			} else {
+				String[] newLocation = { rows[randomSpanStart] + startingCol, rows[(randomSpanStart - 1)] + startingCol, rows[(randomSpanStart - 2)] + startingCol };
+				location = newLocation;
+			}
+		}
 	}
 
 	public String[] getLocation() {
