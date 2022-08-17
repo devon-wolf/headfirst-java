@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.ArrayList;
+
 class GameHelper {
 	public String getUserInput(String prompt) {
 		System.out.print(prompt + ": ");
@@ -58,7 +60,7 @@ class Game {
 
 class Startup {
 	private String name;
-	private String[] location = new String[3];
+	private ArrayList<String> location = new ArrayList<String>();
 	private int numOfHits = 0;
 
 	public void setName(String newName) {
@@ -74,7 +76,7 @@ class Startup {
 		name = names[(int) (Math.random() * names.length)];
 	}
 
-	public void setLocation(String[] newLocation) {
+	public void setLocation(ArrayList<String> newLocation) {
 		location = newLocation;
 	}
 
@@ -97,18 +99,16 @@ class Startup {
 	}
 
 	private void setThreeLocationCells(String base, String[] span, int spanStart, boolean baseIsRow) {
-		String[] newLocation = new String[3];
 		int spanIdx = spanStart;
 
-		for (int i = 0; i < newLocation.length; i++) {
-			newLocation[i] = baseIsRow ? (base + span[spanIdx]) : (span[spanIdx] + base);
+		for (int i = 0; i < 3; i++) {
+			String newCell = baseIsRow ? (base + span[spanIdx]) : (span[spanIdx] + base);
+			location.add(newCell);
 			spanIdx = (spanStart <= 4) ? spanIdx + 1 : spanIdx - 1;
 		}
-
-		location = newLocation;
 	}
 
-	public String[] getLocation() {
+	public ArrayList<String> getLocation() {
 		return location;
 	}
 
@@ -120,21 +120,20 @@ class Startup {
 		String result = "Miss";
 
 		if (!guess.equals("")) {
-			for (int i = 0; i < location.length; i++) {
-				if (location[i].equals(guess)) {
-					location[i] = "";
+			for (String cell:location) {
+				if (cell.equals(guess)) {
+					location.remove(cell);
 					numOfHits++;
 					result = "Hit";
 					break;
 				}
 			}
 		}
-		
 		return result;
 	}
 
 	public boolean isSunk() {
-		return numOfHits >= location.length;
+		return location.isEmpty();
 	}
 
 }
@@ -150,7 +149,11 @@ class StartupTest extends Test {
 		Startup startup = new Startup();
 		startup.setName("testup");
 
-		String[] locationCells = {"A0", "A1", "A2"};
+		ArrayList<String> locationCells = new ArrayList<String>();
+		locationCells.add("A0");
+		locationCells.add("A1");
+		locationCells.add("A2");
+
 		startup.setLocation(locationCells);
 
 		String guessHit1 = "A1";
