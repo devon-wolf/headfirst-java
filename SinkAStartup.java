@@ -61,7 +61,6 @@ class Game {
 class Startup {
 	private String name;
 	private ArrayList<String> location = new ArrayList<String>();
-	private int numOfHits = 0;
 
 	public void setName(String newName) {
 		name = newName;
@@ -112,10 +111,6 @@ class Startup {
 		return location;
 	}
 
-	public int getNumOfHits() {
-		return numOfHits;
-	}
-
 	public String checkGuess(String guess) {
 		String result = "Miss";
 
@@ -123,7 +118,6 @@ class Startup {
 			for (String cell:location) {
 				if (cell.equals(guess)) {
 					location.remove(cell);
-					numOfHits++;
 					result = "Hit";
 					break;
 				}
@@ -173,7 +167,7 @@ class StartupTest extends Test {
 		String resultMiss = startup.checkGuess(guessWrong);
 		printTest("it should return a miss for a wrong guess", resultMiss.equals(miss));
 
-		printTest("it should reflect one hit on the startup", startup.getNumOfHits() == 1);
+		printTest("it should reflect one hit on the startup", startup.getLocation().size() == 2);
 		printTest("it should indicate that the startup is not sunk", startup.isSunk() == false);
 
 		String hit2 = startup.checkGuess(guessHit2);
@@ -190,7 +184,7 @@ class StartupTest extends Test {
 		String hit3 = startup.checkGuess(guessHit3);
 		printTest("it should return a hit on guessHit3", hit3.equals(hit));
 
-		printTest("it should show the number of hits as 3", startup.getNumOfHits() == 3);
+		printTest("it should show the number of hits as 3", startup.getLocation().size() == 0);
 		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk() == true);
 
 		Startup randomStartup = new Startup();
