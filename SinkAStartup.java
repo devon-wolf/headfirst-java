@@ -1,52 +1,137 @@
-import java.util.Scanner;
-import java.util.ArrayList;
+import java.util.*;
 
 class GameHelper {
+	private static final String ALPHABET = "abcdefg";
+	private static final int GRID_LENGTH = 7;
+	private static final int GRID_SIZE = 49;
+	private static final int MAX_ATTEMPTS = 200;
+	static final int HORIZONTAL_INCREMENT = 1;
+	static final int VERTICAL_INCREMENT = GRID_LENGTH;
+
+	private final int[] grid = new int[GRID_SIZE];
+	private final Random random = new Random();
+	private int startupCount = 0;
+
 	public String getUserInput(String prompt) {
 		System.out.print(prompt + ": ");
 		Scanner scanner = new Scanner(System.in);
-		return scanner.next();
+		return scanner.nextLine().toLowerCase();
+	}
+
+	public ArrayList<String> placeStartup(int startupSize) {
+		int[] startupCoords = new int[startupSize];
+		int attempts = 0;
+		boolean success = false;
+
+		startupCount++;
+		int increment = getIncrement();
+
+		while (!success & attempts++ < MAX_ATTEMPTS) {
+			int location = random.nextInt(GRID_SIZE);
+
+			for (int i = 0; i < startupCoords.length; i++) {
+				startupCoords[i] = location;
+				location += increment;
+			}
+
+			if (startupFits(startupCoords, increment)) {
+				success = coordsAvailable(startupCoords);
+			}
+		}
+		savePositionToGrid(startupCoords);
+
+		ArrayList<String> alphaCells = convertCoordsToAlphaFormat(startupCoords);
+		return alphaCells;
+	}
+
+	private boolean startupFits(int[] startupCoords, int increment) {
+		int finalLocation = startupCoords[startupCoords.length - 1];
+		if (increment == HORIZONTAL_INCREMENT) {
+			return calcRowFromIndex(startupCoords[0]) == calcRowFromIndex(finalLocation);
+		} else {
+			return finalLocation < GRID_SIZE;
+		}
+	}
+
+	private boolean coordsAvailable(int[] startupCoords) {
+		for (int coord : startupCoords) {
+			if (grid[coord] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void savePositionToGrid(int[] startupCoords) {
+		for (int index : startupCoords) {
+			grid[index] = 1;
+		}
+	}
+
+	private ArrayList<String> convertCoordsToAlphaFormat(int[] startupCoords) {
+		ArrayList<String> alphaCells = new ArrayList<String>();
+		for (int index : startupCoords) {
+			String alphaCoords = getAlphaCoordsFromIndex(index);
+			alphaCells.add(alphaCoords);
+		}
+		return alphaCells;
+	}
+
+	private String getAlphaCoordsFromIndex(int index) {
+		int row = calcRowFromIndex(index);
+		int column = index % GRID_LENGTH;
+		String letter = ALPHABET.substring(column, column + 1);
+		return letter + row;
+	}
+
+	private int calcRowFromIndex(int index) {
+		return index / GRID_LENGTH;
+	}
+
+	private int getIncrement() {
+		if (startupCount % 2 == 0) {
+			return HORIZONTAL_INCREMENT;
+		} else {
+			return VERTICAL_INCREMENT;
+		}
 	}
 }
 
 class Game {
 	private static int guessCount = 0;
+	private static ArrayList<Startup> startups = new ArrayList<Startup>();
+	private static GameHelper helper = new GameHelper();
 
 	public static void main(String[] args) {
-		Startup startup = new Startup();
-		startup.assignRandomName();
 
-		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
-		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
-		startup.assignRandomLocation(rows, cols);
+		generateStartups(3);
+		for (Startup startup:startups) {
+			printStartupInfo(startup);
+		}
 
-		printLocation(startup);
-
-		while (!startup.isSunk()) {
-			GameHelper helper = new GameHelper();
-
-			// worth noting: hitting return on empty input makes a newline, not an empty string, and it keeps waiting for input
+		while (!isGameOver()) {
 			String guess = helper.getUserInput("Enter a cell");
 			guessCount++;
 
-			String result = startup.checkGuess(guess);
-			printResult(result);
-		}
+			for (Startup startup:startups) {
+				if (!startup.isSunk()) {
+					String result = startup.checkGuess(guess);
+					System.out.println(result + " " + startup.getName());
 
-		printSunkMessage(startup);
-		printFinalGuessCount();
+					if (startup.isSunk()) {
+						startups.remove(startup);
+					}
+				} 
+			}
+		}
 	}
 
-	static void printLocation(Startup startup) {
-		System.out.println("The test location of the startup is: ");
+	static void printStartupInfo(Startup startup) {
+		System.out.println("The test location of " + startup.getName() + " is: ");
 		for (String cell:startup.getLocation()) {
 			System.out.print(cell + " ");
 		}
 		System.out.println();
-	}
-
-	static void printResult(String result) {
-		System.out.println(result);
 	}
 
 	static void printSunkMessage(Startup startup) {
@@ -55,6 +140,32 @@ class Game {
 
 	static void printFinalGuessCount() {
 		System.out.println("The game took you " + guessCount + " guesses.");
+	}
+
+	static void generateStartups(int quantity) {
+		ArrayList<String> names = new ArrayList<String>(
+			Arrays.asList(
+				"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal", "asdf", "waterclick"
+				)
+			);
+		
+		if (quantity > names.size()) {
+			System.out.println("I can't make that many startups, do you think I'm made of money? Fix that.");
+			return;
+		}
+		
+		for (int i = 0; i < quantity; i++) {
+			Startup startup = new Startup();
+			String randomName = names.get((int) (Math.random() * names.size()));
+			startup.setName(randomName);
+			names.remove(randomName);
+			startup.setLocation(helper.placeStartup(3));
+			startups.add(startup);
+		}
+	}
+
+	static boolean isGameOver() {
+		return startups.isEmpty();
 	}
 }
 
@@ -70,41 +181,8 @@ class Startup {
 		return name;
 	}
 
-	public void assignRandomName() {
-		String[] names = {"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal"};
-		name = names[(int) (Math.random() * names.length)];
-	}
-
 	public void setLocation(ArrayList<String> newLocation) {
 		location = newLocation;
-	}
-
-	public void assignRandomLocation(String[] rows, String[] cols) {
-		boolean baseIsRow = Random.flipCoin();
-
-		if (baseIsRow == true) {
-			int randomBase = (int) (Math.random() * rows.length);
-			int randomSpanStart = (int) (Math.random() * cols.length);
-			String startingRow = rows[randomBase];
-
-			setThreeLocationCells(rows[randomBase], cols, randomSpanStart, baseIsRow);
-		} else {
-			int randomBase = (int) (Math.random() * cols.length);
-			int randomSpanStart = (int) (Math.random() * rows.length);
-			String startingCol = cols[randomBase];
-
-			setThreeLocationCells(cols[randomBase], rows, randomSpanStart, baseIsRow);
-		}
-	}
-
-	private void setThreeLocationCells(String base, String[] span, int spanStart, boolean baseIsRow) {
-		int spanIdx = spanStart;
-
-		for (int i = 0; i < 3; i++) {
-			String newCell = baseIsRow ? (base + span[spanIdx]) : (span[spanIdx] + base);
-			location.add(newCell);
-			spanIdx = (spanStart <= 4) ? spanIdx + 1 : spanIdx - 1;
-		}
 	}
 
 	public ArrayList<String> getLocation() {
@@ -129,7 +207,6 @@ class Startup {
 	public boolean isSunk() {
 		return location.isEmpty();
 	}
-
 }
 
 class StartupTest extends Test {
@@ -143,11 +220,7 @@ class StartupTest extends Test {
 		Startup startup = new Startup();
 		startup.setName("testup");
 
-		ArrayList<String> locationCells = new ArrayList<String>();
-		locationCells.add("A0");
-		locationCells.add("A1");
-		locationCells.add("A2");
-
+		ArrayList<String> locationCells = new ArrayList<String>(Arrays.asList("A0", "A1", "A2"));
 		startup.setLocation(locationCells);
 
 		String guessHit1 = "A1";
@@ -187,38 +260,10 @@ class StartupTest extends Test {
 		printTest("it should show the number of hits as 3", startup.getLocation().size() == 0);
 		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk() == true);
 
-		Startup randomStartup = new Startup();
-		randomStartup.assignRandomName();
-
-		String[] rows = { "A", "B", "C", "D", "E", "F", "G" };
-		String[] cols = { "0", "1", "2", "3", "4", "5", "6" };
-		randomStartup.assignRandomLocation(rows, cols);
-
-		printTest("it should have a name", randomStartup.getName() != null);
-		System.out.println("\t(name: " + randomStartup.getName() + ")");
-
-		
-		printTest("it should have a location", randomStartup.getLocation() != null);
-		System.out.print("\t(location: ");
-		for (String cell:randomStartup.getLocation()) {
-			System.out.print(cell + " ");
-		}
-		System.out.println(")");
-
 		System.out.println("=====");
 	}
 }
 
-class Random {
-	public static boolean flipCoin() {
-		int coinFlip = (int) (Math.random() * 2);
-		if (coinFlip == 1) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-}
 
 class Test {
 	public static void main(String[] args) {
