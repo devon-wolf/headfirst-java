@@ -112,18 +112,26 @@ class Game {
 		while (!isGameOver()) {
 			String guess = helper.getUserInput("Enter a cell");
 			guessCount++;
-
+			String result = "Miss";
 			for (Startup startup:startups) {
 				if (!startup.isSunk()) {
-					String result = startup.checkGuess(guess);
-					System.out.println(result + " " + startup.getName());
+					result = startup.checkGuess(guess);
 
 					if (startup.isSunk()) {
+						printSunkMessage(startup);
 						startups.remove(startup);
+					}
+
+					if (result.equals("Hit")) {
+						break;
 					}
 				} 
 			}
+			System.out.println(result);
 		}
+
+		System.out.println("You sunk everything!");
+		printFinalGuessCount();
 	}
 
 	static void printStartupInfo(Startup startup) {
