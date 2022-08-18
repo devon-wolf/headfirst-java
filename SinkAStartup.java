@@ -103,8 +103,7 @@ class Game {
 	private static GameHelper helper = new GameHelper();
 
 	public static void main(String[] args) {
-
-		generateStartups(3);
+		generateThreeStartups();
 		for (Startup startup:startups) {
 			printStartupInfo(startup);
 		}
@@ -150,19 +149,14 @@ class Game {
 		System.out.println("The game took you " + guessCount + " guesses.");
 	}
 
-	static void generateStartups(int quantity) {
+	static void generateThreeStartups() {
 		ArrayList<String> names = new ArrayList<String>(
 			Arrays.asList(
 				"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal", "asdf", "waterclick"
 				)
 			);
 		
-		if (quantity > names.size()) {
-			System.out.println("I can't make that many startups, do you think I'm made of money? Fix that.");
-			return;
-		}
-		
-		for (int i = 0; i < quantity; i++) {
+		for (int i = 0; i < 3; i++) {
 			Startup startup = new Startup();
 			String randomName = names.get((int) (Math.random() * names.size()));
 			startup.setName(randomName);
@@ -222,7 +216,7 @@ class StartupTest extends Test {
 
 	public static void main(String[] args) {
 		System.out.println();
-		System.out.println("Startup Class Tests");
+		System.out.println(name);
 		System.out.println("=====");
 
 		Startup startup = new Startup();
@@ -249,7 +243,7 @@ class StartupTest extends Test {
 		printTest("it should return a miss for a wrong guess", resultMiss.equals(miss));
 
 		printTest("it should reflect one hit on the startup", startup.getLocation().size() == 2);
-		printTest("it should indicate that the startup is not sunk", startup.isSunk() == false);
+		printTest("it should indicate that the startup is not sunk", !startup.isSunk());
 
 		String hit2 = startup.checkGuess(guessHit2);
 		printTest("it should return a hit on guessHit2", hit2.equals(hit));
@@ -260,13 +254,13 @@ class StartupTest extends Test {
 		String emptyMiss = startup.checkGuess(guessEmpty);
 		printTest("it should return a miss when an empty string is guessed", emptyMiss.equals(miss));
 
-		printTest("it should still show the startup as not yet sunk", startup.isSunk() == false);
+		printTest("it should still show the startup as not yet sunk", !startup.isSunk());
 
 		String hit3 = startup.checkGuess(guessHit3);
 		printTest("it should return a hit on guessHit3", hit3.equals(hit));
 
 		printTest("it should show the number of hits as 3", startup.getLocation().size() == 0);
-		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk() == true);
+		printTest("it should indicate that the startup is sunk after hitting all location cells", startup.isSunk());
 
 		System.out.println("=====");
 	}
@@ -281,7 +275,7 @@ class Test {
 	}
 
 	private static String getPassOrFail(boolean expectation) {
-		if (expectation == true) {
+		if (expectation) {
 			return "PASS";
 		}
 		return "FAIL";
