@@ -101,6 +101,18 @@ class Game {
 	private final ArrayList<Startup> startups = new ArrayList<>();
 	private final GameHelper helper = new GameHelper();
 
+	public static void main(String[] args) {
+		Game game = new Game();
+		game.setUpGame();
+		game.playGame();
+		game.endGame();
+	}
+
+	void setUpGame() {
+		generateThreeStartups();
+		printInstructions();
+	}
+
 	void playGame() {
 		while (!isGameOver()) {
 			String guess = helper.getUserInput("Enter a cell");
@@ -124,9 +136,20 @@ class Game {
 				System.out.println(result);
 			}
 		}
+	}
 
+	void endGame() {
 		System.out.println("You sunk everything!");
 		printFinalGuessCount();
+	}
+
+	void printInstructions() {
+		System.out.println("There is a 7 x 7 grid on which three startups have been placed.");
+		System.out.println("Each startup occupies three cells, and each may be placed vertically or horizontally.");
+		System.out.println("The startups do not overlap.");
+		System.out.println("The cells are identified by row and column - the rows are the letters A-G and the columns are the numbers 0-6.");
+		System.out.println("Guesses are not case sensitive. Valid guesses include b2, A0, g6, and so on in that fashion.");
+		System.out.println("Your goal is to guess all the cells that the startups occupy, thereby sinking all the startups.");
 	}
 
 	void printLocations() {
@@ -172,9 +195,10 @@ class Game {
 class GameTest {
 	public static void main(String[] args) {
 		Game game = new Game();
-		game.generateThreeStartups();
+		game.setUpGame();
 		game.printLocations();
 		game.playGame();
+		game.endGame();
 	}
 }
 
