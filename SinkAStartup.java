@@ -98,16 +98,11 @@ class GameHelper {
 }
 
 class Game {
-	private static int guessCount = 0;
-	private static ArrayList<Startup> startups = new ArrayList<Startup>();
-	private static GameHelper helper = new GameHelper();
+	private int guessCount = 0;
+	private ArrayList<Startup> startups = new ArrayList<Startup>();
+	private GameHelper helper = new GameHelper();
 
-	public static void main(String[] args) {
-		generateThreeStartups();
-		for (Startup startup:startups) {
-			printStartupInfo(startup);
-		}
-
+	void playGame() {
 		while (!isGameOver()) {
 			String guess = helper.getUserInput("Enter a cell");
 			guessCount++;
@@ -116,40 +111,44 @@ class Game {
 				if (!startup.isSunk()) {
 					result = startup.checkGuess(guess);
 
-					if (startup.isSunk()) {
-						printSunkMessage(startup);
-						startups.remove(startup);
-					}
-
 					if (result.equals("Hit")) {
+						System.out.println(result);
+						if (startup.isSunk()) {
+							printSunkMessage(startup);
+							startups.remove(startup);
+						}
 						break;
 					}
-				} 
+				}
 			}
-			System.out.println(result);
+			if (result.equals("Miss")) {
+				System.out.println(result);
+			}
 		}
 
 		System.out.println("You sunk everything!");
 		printFinalGuessCount();
 	}
 
-	static void printStartupInfo(Startup startup) {
-		System.out.println("The test location of " + startup.getName() + " is: ");
-		for (String cell:startup.getLocation()) {
-			System.out.print(cell + " ");
+	void printLocations() {
+		for (Startup startup:startups) {
+			System.out.println("The test location of " + startup.getName() + " is: ");
+			for (String cell:startup.getLocation()) {
+				System.out.print(cell + " ");
+			}
+			System.out.println();
 		}
-		System.out.println();
 	}
 
-	static void printSunkMessage(Startup startup) {
+	void printSunkMessage(Startup startup) {
 		System.out.println("You sunk " + startup.getName() + "!");
 	}
 
-	static void printFinalGuessCount() {
+	void printFinalGuessCount() {
 		System.out.println("The game took you " + guessCount + " guesses.");
 	}
 
-	static void generateThreeStartups() {
+	void generateThreeStartups() {
 		ArrayList<String> names = new ArrayList<String>(
 			Arrays.asList(
 				"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal", "asdf", "waterclick"
@@ -166,8 +165,17 @@ class Game {
 		}
 	}
 
-	static boolean isGameOver() {
+	boolean isGameOver() {
 		return startups.isEmpty();
+	}
+}
+
+class GameTest {
+	public static void main(String[] args) {
+		Game game = new Game();
+		game.generateThreeStartups();
+		game.printLocations();
+		game.playGame();
 	}
 }
 
