@@ -105,7 +105,6 @@ class Game {
 		Game game = new Game();
 		game.setUpGame();
 		game.playGame();
-		game.endGame();
 	}
 
 	void setUpGame() {
@@ -136,6 +135,7 @@ class Game {
 				System.out.println(result);
 			}
 		}
+		endGame();
 	}
 
 	void endGame() {
@@ -198,7 +198,6 @@ class GameTest {
 		game.setUpGame();
 		game.printLocations();
 		game.playGame();
-		game.endGame();
 	}
 }
 
