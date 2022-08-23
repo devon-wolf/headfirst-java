@@ -19,7 +19,7 @@ class GameHelper {
 	}
 
 	public ArrayList<String> placeStartup(int startupSize) {
-		int[] startupCoords = new int[startupSize];
+		int[] startupCoordinates = new int[startupSize];
 		int attempts = 0;
 		boolean success = false;
 
@@ -29,55 +29,54 @@ class GameHelper {
 		while (!success & attempts++ < MAX_ATTEMPTS) {
 			int location = random.nextInt(GRID_SIZE);
 
-			for (int i = 0; i < startupCoords.length; i++) {
-				startupCoords[i] = location;
+			for (int i = 0; i < startupCoordinates.length; i++) {
+				startupCoordinates[i] = location;
 				location += increment;
 			}
 
-			if (startupFits(startupCoords, increment)) {
-				success = coordsAvailable(startupCoords);
+			if (startupFits(startupCoordinates, increment)) {
+				success = coordinatesAvailable(startupCoordinates);
 			}
 		}
-		savePositionToGrid(startupCoords);
+		savePositionToGrid(startupCoordinates);
 
-		ArrayList<String> alphaCells = convertCoordsToAlphaFormat(startupCoords);
-		return alphaCells;
+		return convertCoordinatesToAlphaFormat(startupCoordinates);
 	}
 
-	private boolean startupFits(int[] startupCoords, int increment) {
-		int finalLocation = startupCoords[startupCoords.length - 1];
+	private boolean startupFits(int[] startupCoordinates, int increment) {
+		int finalLocation = startupCoordinates[startupCoordinates.length - 1];
 		if (increment == HORIZONTAL_INCREMENT) {
-			return calcRowFromIndex(startupCoords[0]) == calcRowFromIndex(finalLocation);
+			return calcRowFromIndex(startupCoordinates[0]) == calcRowFromIndex(finalLocation);
 		} else {
 			return finalLocation < GRID_SIZE;
 		}
 	}
 
-	private boolean coordsAvailable(int[] startupCoords) {
-		for (int coord : startupCoords) {
-			if (grid[coord] != 0) {
+	private boolean coordinatesAvailable(int[] startupCoordinates) {
+		for (int coordinate : startupCoordinates) {
+			if (grid[coordinate] != 0) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private void savePositionToGrid(int[] startupCoords) {
-		for (int index : startupCoords) {
+	private void savePositionToGrid(int[] startupCoordinates) {
+		for (int index : startupCoordinates) {
 			grid[index] = 1;
 		}
 	}
 
-	private ArrayList<String> convertCoordsToAlphaFormat(int[] startupCoords) {
-		ArrayList<String> alphaCells = new ArrayList<String>();
-		for (int index : startupCoords) {
-			String alphaCoords = getAlphaCoordsFromIndex(index);
-			alphaCells.add(alphaCoords);
+	private ArrayList<String> convertCoordinatesToAlphaFormat(int[] startupCoordinates) {
+		ArrayList<String> alphaCells = new ArrayList<>();
+		for (int index : startupCoordinates) {
+			String alphaCoordinates = getAlphaCoordinatesFromIndex(index);
+			alphaCells.add(alphaCoordinates);
 		}
 		return alphaCells;
 	}
 
-	private String getAlphaCoordsFromIndex(int index) {
+	private String getAlphaCoordinatesFromIndex(int index) {
 		int row = calcRowFromIndex(index);
 		int column = index % GRID_LENGTH;
 		String letter = ALPHABET.substring(column, column + 1);
@@ -99,8 +98,8 @@ class GameHelper {
 
 class Game {
 	private int guessCount = 0;
-	private ArrayList<Startup> startups = new ArrayList<Startup>();
-	private GameHelper helper = new GameHelper();
+	private final ArrayList<Startup> startups = new ArrayList<>();
+	private final GameHelper helper = new GameHelper();
 
 	void playGame() {
 		while (!isGameOver()) {
@@ -149,7 +148,7 @@ class Game {
 	}
 
 	void generateThreeStartups() {
-		ArrayList<String> names = new ArrayList<String>(
+		ArrayList<String> names = new ArrayList<>(
 			Arrays.asList(
 				"blorbocorp", "mufflr", "shortmyeats", "cacophony", "pocketpal", "asdf", "waterclick"
 				)
@@ -181,7 +180,7 @@ class GameTest {
 
 class Startup {
 	private String name;
-	private ArrayList<String> location = new ArrayList<String>();
+	private ArrayList<String> location = new ArrayList<>();
 
 	public void setName(String newName) {
 		name = newName;
@@ -220,17 +219,15 @@ class Startup {
 }
 
 class StartupTest extends Test {
-	private static String name = "Startup Class Tests";
-
 	public static void main(String[] args) {
 		System.out.println();
-		System.out.println(name);
+		System.out.println("Startup Class Tests");
 		System.out.println("=====");
 
 		Startup startup = new Startup();
 		startup.setName("testup");
 
-		ArrayList<String> locationCells = new ArrayList<String>(Arrays.asList("A0", "A1", "A2"));
+		ArrayList<String> locationCells = new ArrayList<>(Arrays.asList("A0", "A1", "A2"));
 		startup.setLocation(locationCells);
 
 		String guessHit1 = "A1";
@@ -238,7 +235,7 @@ class StartupTest extends Test {
 		String guessHit3 = "A2";
 
 		String guessWrong = "B2";
-		String guessDupe = guessHit1;
+		String guessDupe = "A1";
 		String guessEmpty = "";
 
 		String hit = "Hit";
